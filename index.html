@@ -10,7 +10,7 @@
 
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
   <!-- Google Fonts: distinctive editorial pairing -->
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Oswald:wght@400;500;600&display=swap" rel="stylesheet">
 
   <!-- App styles — now in a separate file for easier maintenance -->
 
@@ -146,7 +146,8 @@ async function loadAirportDB() {
 function lookupCode(iata) {
   const d = AIRPORTS[iata.toUpperCase().trim()];
   if (!d) return null;
-  return { iata: iata.toUpperCase(), name: d[0], country: d[1], city: d[2], lat: d[3], lon: d[4] };
+  // New JSON format uses named fields — just add iata and return as-is
+  return { iata: iata.toUpperCase(), ...d };
 }
 
 // ════════════════════════════════════════════════════════════
@@ -288,9 +289,11 @@ function lookupAirport(iata, infoEl, isOrigin) {
   }
   const ap = lookupCode(iata);
   if (ap) {
+    const icao      = ap.icao      ? ' · ' + ap.icao : '';
+    const elevation = ap.elevation ? ' · ' + ap.elevation.toLocaleString() + ' ft' : '';
     infoEl.innerHTML =
       '<div class="airport-name">' + ap.name + '</div>' +
-      '<div class="airport-meta">' + (ap.city ? ap.city + ' · ' : '') + ap.country + '</div>';
+      '<div class="airport-meta">' + (ap.city ? ap.city + ' · ' : '') + ap.country + icao + elevation + '</div>';
     if (isOrigin) origAirport = ap; else destAirport = ap;
   } else {
     infoEl.innerHTML = '<div class="airport-error">Code not found in database</div>';
